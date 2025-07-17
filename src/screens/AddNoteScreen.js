@@ -1,4 +1,3 @@
-// screens/AddNoteScreen.js
 import React, { useState } from 'react';
 import {
     View,
@@ -7,216 +6,208 @@ import {
     TouchableOpacity,
     StyleSheet,
     SafeAreaView,
-    ImageBackground,
     Image,
-    KeyboardAvoidingView, // Для обработки клавиатуры
-    Platform, Alert, // Для Platform.OS
+    KeyboardAvoidingView,
+    Platform,
+    Alert,
 } from 'react-native';
-import { useDispatch, useSelector } from 'react-redux';
-import {addNoteToEvent} from "../redux/slices/eventsSlice";
+import { useDispatch } from 'react-redux';
+import { addNoteToEvent } from "../redux/slices/eventsSlice";
 
 function AddNoteScreen({ navigation, route }) {
     const dispatch = useDispatch();
-    const { eventId, selectedDate } = route.params; // Получаем eventId и selectedDate из параметров навигации
+    const { eventId, selectedDate } = route.params;
 
-
-    const [noteText, setNoteText] = useState();
+    const [noteText, setNoteText] = useState(''); // Initialize with empty string for controlled component
 
     const handleSaveNote = () => {
-        if (!noteText || noteText.trim() === '') {
-            Alert.alert('Empty Note', 'Please enter some text before saving.');
+        if (noteText.trim() === '') {
+            Alert.alert('Empty Note', 'Please enter some text before saving.', [
+                { text: 'OK' }
+            ]);
             return;
         }
 
         dispatch(addNoteToEvent({
             eventId,
             note: noteText.trim(),
+            // You might want to add a timestamp to the note itself here if not already handled in the slice
+            timestamp: new Date().toISOString(),
         }));
 
-        Alert.alert('Note Saved', 'Your note has been added.', [
+        Alert.alert('Note Saved', 'Your reflection has been added successfully! 🎉', [
             { text: 'OK', onPress: () => navigation.goBack() }
         ]);
     };
 
     return (
-        <SafeAreaView style={styles.fullScreen}>
-            <View
-
-                style={styles.backgroundImage}
+        <SafeAreaView style={styles.safeArea}>
+            <KeyboardAvoidingView
+                behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+                style={styles.keyboardAvoidingView}
             >
-                <KeyboardAvoidingView
-                    behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-                    style={styles.keyboardAvoidingView}
-                >
-                    {/* Header */}
-                    <View style={styles.header}>
-                        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-                            <Image
-                                source={require('../assets/img/g69.png')} // Замените на иконку стрелки назад
-                                style={styles.backIcon}
-                            />
-                        </TouchableOpacity>
-                        <View style={styles.noteTitleContainer}>
-                            <Text style={styles.noteTitleText}>Note</Text>
-                        </View>
+                {/* Header */}
+                <View style={styles.headerBar}>
+                    <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+                        <Image
+                            source={require('../assets/img/g69.png')}
+                            style={styles.backIcon}
+                        />
+                    </TouchableOpacity>
+                    <Text style={styles.headerTitle}>Add Reflection</Text>
+                </View>
+
+                <ScrollView contentContainerStyle={styles.scrollViewContent}>
+                    <View style={styles.promptContainer}>
+                        <Text style={styles.promptText}>
+                            Want to reflect on your day?
+                        </Text>
+                        <Text style={styles.subPromptText}>
+                            Write anything you'd like to remember or track about your journey.
+                        </Text>
                     </View>
 
-                    {/* Image Decorations */}
-                    {/*<Image source={require('../assets/apple.png')} style={styles.appleImage} />*/}
-                    {/*<Image source={require('../assets/blueberries.png')} style={styles.blueberriesImage} />*/}
-
-                    <View style={styles.contentContainer}>
-                        <Text style={styles.questionText}>
-                            Want to reflect on your day? Write anything you'd like to remember.
-                        </Text>
-
+                    <View style={styles.inputContainer}>
                         <TextInput
                             style={styles.noteInput}
                             multiline
-                            placeholder="Start typing your note here..."
-                            placeholderTextColor="#FFF9C4"
+                            placeholder="Start typing your thoughts here..."
+                            placeholderTextColor="#A9A9A9" // Darker placeholder for better contrast
                             value={noteText}
                             onChangeText={setNoteText}
+                            autoCorrect={true} // Enable auto-correction
+                            spellCheck={true} // Enable spell-check
                         />
-
-                        <TouchableOpacity style={styles.saveNoteButton} onPress={handleSaveNote}>
-                            <Text style={styles.saveNoteButtonText}>Save Note</Text>
-                        </TouchableOpacity>
                     </View>
 
-                    {/* More Image Decorations */}
-                    {/*<Image source={require('../assets/donut.png')} style={styles.donutImage} />*/}
-                    {/*<Image source={require('../assets/strawberry.png')} style={styles.strawberryImage} />*/}
-                </KeyboardAvoidingView>
-            </View>
+
+                    <TouchableOpacity style={styles.saveNoteButton} onPress={handleSaveNote}>
+                        <Text style={styles.saveNoteButtonText}>Save Reflection</Text>
+                    </TouchableOpacity>
+                </ScrollView>
+            </KeyboardAvoidingView>
         </SafeAreaView>
     );
 }
 
 const styles = StyleSheet.create({
-    fullScreen: {
+    safeArea: {
         flex: 1,
-    },
-    backgroundImage: {
-        flex: 1,
-        resizeMode: 'cover', // or 'stretch'
-        justifyContent: 'flex-start', // Выравнивание содержимого по верху
-        paddingBottom: Platform.OS === 'android' ? 20 : 0,
-        backgroundColor: '#FF2B8D',
+        backgroundColor: '#FCE4EC', // Very light pink/blush background for overall app
     },
     keyboardAvoidingView: {
         flex: 1,
     },
-    header: {
+    headerBar: {
         flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: 'center', // Центрируем "Note" по горизонтали
-        paddingHorizontal: 15,
-        paddingVertical: 10,
-        marginTop: Platform.OS === 'android' ? 0 : 10, // Отступ сверху для iOS
+        justifyContent: 'center', // Center the title
+        backgroundColor: '#FF69B4', // Hot Pink for header background
+        paddingTop: 20,
+        paddingBottom: 20,
+        borderBottomLeftRadius: 30, // Rounded bottom corners
+        borderBottomRightRadius: 30,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 5 },
+        shadowOpacity: 0.2,
+        shadowRadius: 8,
+        elevation: 10,
+        marginBottom: 20, // Space below header
     },
     backButton: {
         position: 'absolute',
-        left: 15,
-        top: Platform.OS === 'android' ? 10 : 10,
-        zIndex: 10, // Чтобы быть поверх других элементов
-        padding: 5,
+        left: 20,
+        padding: 10, // Increased touch target
     },
     backIcon: {
-        width: 30,
-        height: 30,
-        resizeMode: 'contain',
+        width: 24, // Adjusted size
+        height: 24,
+        tintColor: '#FFF', // White icon for contrast
     },
-    noteTitleContainer: {
-        backgroundColor: '#FFD700', // Желтый фон из примера
-        borderRadius: 25,
-        paddingVertical: 10,
-        paddingHorizontal: 40,
-    },
-    noteTitleText: {
-        color: 'black',
-        fontSize: 20,
-        fontWeight: 'bold',
-        textAlign: 'center',
-    },
-    appleImage: {
-        position: 'absolute',
-        top: '15%', // Примерное позиционирование
-        left: 0,
-        width: 100,
-        height: 100,
-        resizeMode: 'contain',
-        zIndex: -1, // За задним планом
-    },
-    blueberriesImage: {
-        position: 'absolute',
-        top: '10%',
-        right: 0,
-        width: 100,
-        height: 100,
-        resizeMode: 'contain',
-        zIndex: -1,
-    },
-    contentContainer: {
-        flex: 1,
-        alignItems: 'center',
-        paddingHorizontal: 20,
-        marginTop: 50, // Отступ от заголовка
-    },
-    questionText: {
-        fontSize: 22,
-        fontWeight: 'bold',
+    headerTitle: {
         color: 'white',
+        fontWeight: 'bold',
+        fontSize: 28, // Larger title
+        fontFamily: 'Fredoka',
+        textShadowColor: 'rgba(0, 0, 0, 0.3)',
+        textShadowOffset: { width: 1, height: 1 },
+        textShadowRadius: 2,
+    },
+    scrollViewContent: {
+        flexGrow: 1, // Allows content to grow within scrollview
+        paddingHorizontal: 20,
+        paddingBottom: 20,
+        justifyContent: 'space-between', // Pushes button to bottom if content is short
+    },
+    promptContainer: {
+        backgroundColor: '#FFF', // White background for the prompt
+        borderRadius: 20,
+        padding: 20,
+        marginBottom: 30, // More space
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.1,
+        shadowRadius: 8,
+        elevation: 8,
+        borderWidth: 1,
+        borderColor: '#FFC0CB', // Light pink border
+        alignItems: 'center', // Center text within prompt
+    },
+    promptText: {
+        fontSize: 24,
+        fontWeight: 'bold',
+        color: '#FF2B8D', // Deep pink
         textAlign: 'center',
-        marginBottom: 30,
-        lineHeight: 30,
+        marginBottom: 10,
+        lineHeight: 32,
+        fontFamily: 'Fredoka',
+    },
+    subPromptText: {
+        fontSize: 16,
+        color: '#555', // Darker gray for readability
+        textAlign: 'center',
+        lineHeight: 24,
+        fontFamily: 'Fredoka',
+    },
+    inputContainer: {
+        flex: 1, // Allows input to expand
+        backgroundColor: '#FFF', // White background for the input area
+        borderRadius: 20,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.1,
+        shadowRadius: 8,
+        elevation: 8,
+        borderWidth: 1,
+        borderColor: '#FFC0CB',
+        marginBottom: 30, // Space before button
     },
     noteInput: {
-        backgroundColor: '#CD5C5C', // Темно-розовый
-        borderRadius: 20,
-        width: '100%',
-        minHeight: 150, // Минимальная высота
+        flex: 1, // Allows TextInput to fill container
         padding: 20,
-        fontSize: 16,
-        color: 'white',
-        textAlignVertical: 'top', // Выравнивание текста сверху для multiline
-        marginBottom: 40,
-        borderColor: 'rgba(255,255,255,0.3)', // Легкая рамка
-        borderWidth: 1,
+        fontSize: 18,
+        color: '#333', // Darker text for input
+        textAlignVertical: 'top', // Align text to top for multiline
+        fontFamily: 'Fredoka',
     },
     saveNoteButton: {
-        backgroundColor: '#FFD700', // Желтый
-        paddingVertical: 15,
-        paddingHorizontal: 60,
-        borderRadius: 30,
-        shadowColor: '#000', // Тень для кнопки
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.3,
-        shadowRadius: 5,
-        elevation: 8, // Для Android
+        backgroundColor: '#28A745', // Vibrant green for "Save"
+        borderRadius: 30, // Pill-shaped button
+        paddingVertical: 18,
+        alignItems: 'center',
+        justifyContent: 'center',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 5 },
+        shadowOpacity: 0.25,
+        shadowRadius: 10,
+        elevation: 10,
     },
     saveNoteButtonText: {
-        color: 'black',
-        fontSize: 20,
+        color: '#FFF',
+        fontSize: 22,
         fontWeight: 'bold',
-    },
-    donutImage: {
-        position: 'absolute',
-        bottom: '5%',
-        left: -20, // Может выходить за экран
-        width: 150,
-        height: 150,
-        resizeMode: 'contain',
-        zIndex: -1,
-    },
-    strawberryImage: {
-        position: 'absolute',
-        bottom: '0%',
-        right: 0,
-        width: 100,
-        height: 100,
-        resizeMode: 'contain',
-        zIndex: -1,
+        fontFamily: 'Fredoka',
+        textTransform: 'uppercase',
     },
 });
 

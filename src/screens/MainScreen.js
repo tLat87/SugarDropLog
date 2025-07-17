@@ -1,7 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import {StyleSheet, View, Text, TouchableOpacity, SafeAreaView, Dimensions, Image, FlatList, Alert} from 'react-native';
-import {useDispatch, useSelector} from 'react-redux';
-import {removeChallenge} from "../redux/slices/eventsSlice"; // Import useSelector to access Redux state
+import {
+    StyleSheet,
+    View,
+    Text,
+    TouchableOpacity,
+    SafeAreaView,
+    Dimensions,
+    Image,
+    FlatList,
+    Alert,
+    ScrollView // Added ScrollView for better content handling if the list is short
+} from 'react-native';
+import { useDispatch, useSelector } from 'react-redux';
+import { removeChallenge } from "../redux/slices/eventsSlice";
 
 const { width } = Dimensions.get('window');
 
@@ -18,7 +29,7 @@ const isSameDay = (date1, date2) => {
         date1.getDate() === date2.getDate();
 };
 
-export default function App({navigation}) {
+export default function App({ navigation }) {
     // Generate dates dynamically
     const generateDates = () => {
         const today = new Date();
@@ -40,23 +51,40 @@ export default function App({navigation}) {
 
     // Access challenges from Redux store
     const allChallenges = useSelector(state => state.challenges);
-    const  dispatch = useDispatch();
-    const handleChallengeAction = (item, actionType) => {
-        // Dispatch action to remove the challenge from Redux
-        dispatch(removeChallenge({ title: item.title, addedDate: item.addedDate }));
+    const dispatch = useDispatch();
 
-        // Show modal/alert
-        if (actionType === 'done') {
-            Alert.alert(
-                'Congratulations!',
-                'You did great! Keep up the good work and continue striving for your goals.'
-            );
-        } else if (actionType === 'failed') {
-            Alert.alert(
-                'Don\'t Worry!',
-                'It\'s okay to stumble sometimes. Keep pushing and you\'ll get there!'
-            );
-        }
+    const handleChallengeAction = (item, actionType) => {
+        Alert.alert(
+            actionType === 'done' ? 'Confirm Completion' : 'Confirm Failure',
+            actionType === 'done'
+                ? `Are you sure you want to mark "${item.title}" as done?`
+                : `Are you sure you want to mark "${item.title}" as failed?`,
+            [
+                {
+                    text: 'Cancel',
+                    style: 'cancel',
+                },
+                {
+                    text: actionType === 'done' ? 'Done!' : 'Failed',
+                    onPress: () => {
+                        dispatch(removeChallenge({ title: item.title, addedDate: item.addedDate }));
+                        if (actionType === 'done') {
+                            Alert.alert(
+                                'Awesome!',
+                                `"${item.title}" completed! You're making great progress. 🎉`
+                            );
+                        } else if (actionType === 'failed') {
+                            Alert.alert(
+                                'Keep Going!',
+                                `"${item.title}" marked as failed. Don't worry, every step counts. 💪`
+                            );
+                        }
+                    },
+                    style: actionType === 'done' ? 'default' : 'destructive', // Green for done, Red for failed
+                },
+            ],
+            { cancelable: true }
+        );
     };
 
     // State to hold challenges filtered by the selected date
@@ -106,9 +134,9 @@ export default function App({navigation}) {
         <SafeAreaView style={styles.container}>
             {/* Header - Today and Date Bubbles */}
             <View style={styles.header}>
-                <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginBottom: 20,}}>
-                    <Image style={styles.logo} source={require('../assets/img/Frame.png')}/>
-                    <Text style={styles.todayText}>Today</Text>
+                <View style={styles.headerTopRow}>
+                    <Image style={styles.logo} source={require('../assets/img/Frame.png')} />
+                    <Text style={styles.todayText}>Your Challenges</Text>
                 </View>
 
                 <View style={styles.dateSelector}>
@@ -117,18 +145,17 @@ export default function App({navigation}) {
                             key={index}
                             style={[
                                 styles.dateBubble,
-                                selectedDateIndex === index && styles.selectedDateBubble,
-                                { backgroundColor: selectedDateIndex === index ? '#FFD700' : '#E02B82' } // Yellow for selected, pink for others
+                                selectedDateIndex === index ? styles.selectedDateBubble : styles.unselectedDateBubble // Apply explicit styles
                             ]}
                             onPress={() => setSelectedDateIndex(index)}
                         >
                             <Text style={[
                                 styles.dateNumber,
-                                { color: selectedDateIndex === index ? '#333' : '#FFF' }
+                                selectedDateIndex === index ? styles.selectedDateText : styles.unselectedDateText
                             ]}>{date.dayNum}</Text>
                             <Text style={[
                                 styles.dateDay,
-                                { color: selectedDateIndex === index ? '#333' : '#FFF' }
+                                selectedDateIndex === index ? styles.selectedDateText : styles.unselectedDateText
                             ]}>{date.dayText}</Text>
                         </TouchableOpacity>
                     ))}
@@ -136,28 +163,39 @@ export default function App({navigation}) {
             </View>
 
             {/* Main Content - Conditional Rendering */}
-            <View style={styles.mainContent}>
+            <ScrollView contentContainerStyle={styles.mainContentScroll}>
                 {filteredChallenges.length > 0 ? (
                     // Display challenges if available for the selected date
                     <FlatList
                         data={filteredChallenges}
                         renderItem={renderChallengeItem}
-                        keyExtractor={(item, index) => item.title + index} // Use a unique key
+                        keyExtractor={(item, index) => item.title + index + item.addedDate} // More robust key
                         contentContainerStyle={styles.challengesList}
+                        scrollEnabled={false} // FlatList inside ScrollView, manage scrolling with ScrollView
                     />
                 ) : (
                     // Display "No challenges" message
-                    <>
-                        <Image style={{width: 200, height: 200}} source={require('../assets/img/beb4476f2d4cbec48784ca5332c5b636d3f95a39.png')}/>
+                    <View style={styles.noChallengesContainer}>
+                        <Image style={styles.noChallengesImage} source={require('../assets/img/beb4476f2d4cbec48784ca5332c5b636d3f95a39.png')} />
                         <Text style={styles.challengeText}>
-                            You haven't started any challenges yet. Browse the list and choose one that fits <Text style={styles.highlightText}>your goals!</Text>
+                            It looks like you don't have any challenges for {' '}
+                            <Text style={styles.highlightText}>
+                                {selectedDateIndex === 4 ? 'today' : dates[selectedDateIndex]?.dayText}!
+                            </Text>
                         </Text>
-                        <TouchableOpacity onPress={() => { navigation.navigate('ChallengeListScreen') }}>
-                            <Image source={require('../assets/img/FrameEx.png')}/>
+                        <Text style={styles.challengeTextSmall}>
+                            Ready to set new goals? Browse our list of exciting challenges.
+                        </Text>
+                        <TouchableOpacity
+                            style={styles.browseChallengesButton}
+                            onPress={() => { navigation.navigate('ChallengeListScreen') }}
+                        >
+                            <Text style={styles.browseChallengesButtonText}>Explore Challenges</Text>
+                            <Image source={require('../assets/img/FrameEx.png')} style={styles.browseChallengesIcon}/>
                         </TouchableOpacity>
-                    </>
+                    </View>
                 )}
-            </View>
+            </ScrollView>
         </SafeAreaView>
     );
 }
@@ -165,125 +203,225 @@ export default function App({navigation}) {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#FF69B4', // Hot Pink background
-    },
-    challengeActions: {
-        flexDirection: 'row',
-        marginLeft: 10,
-    },
-    actionButton: {
-        paddingVertical: 10,
-        paddingHorizontal: 15,
-        borderRadius: 8,
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginLeft: 8,
-    },
-    failedButton: {
-        backgroundColor: '#FF0000', // Red
-    },
-    doneButton: {
-        backgroundColor: '#00FF00', // Green
-    },
-    actionButtonText: {
-        color: '#FFF',
-        fontWeight: 'bold',
-        fontSize: 14,
+        backgroundColor: '#FCE4EC', // Very light pink/blush background for overall app
     },
     header: {
-        paddingTop: 20,
-        marginBottom: 40,
+        backgroundColor: '#FF69B4', // Hot Pink for the header background
+        paddingTop: 30, // More padding for SafeAreaView effect
+        paddingBottom: 20,
+        borderBottomLeftRadius: 30, // Rounded bottom corners for the header
+        borderBottomRightRadius: 30,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 5 },
+        shadowOpacity: 0.2,
+        shadowRadius: 8,
+        elevation: 10,
+    },
+    headerTopRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'flex-start', // Align to start
+        paddingHorizontal: 20,
+        marginBottom: 20,
     },
     logo: {
-        width: 30, // Adjust size as needed
-        height: 30, // Adjust size as needed
+        width: 35,
+        height: 35,
         marginRight: 10,
     },
     todayText: {
-        fontSize: 24,
+        fontSize: 28,
         fontWeight: 'bold',
-        marginLeft: 16,
         color: '#FFF',
+        fontFamily: 'Fredoka', // Assuming Fredoka is loaded
+        textShadowColor: 'rgba(0, 0, 0, 0.2)',
+        textShadowOffset: { width: 1, height: 1 },
+        textShadowRadius: 2,
     },
     dateSelector: {
         flexDirection: 'row',
-        justifyContent: 'space-around',
+        justifyContent: 'space-evenly', // Evenly distribute bubbles
         alignItems: 'center',
+        paddingHorizontal: 10, // Add padding to the sides
     },
     dateBubble: {
-        width: width / 6,
-        height: width / 6,
-        borderRadius: (width / 6) / 2,
+        width: width / 7, // Smaller bubbles for more compact look
+        height: width / 7,
+        borderRadius: (width / 7) / 2,
         justifyContent: 'center',
-        // backgroundColor: '#FFD700',
         alignItems: 'center',
-        marginHorizontal: 5,
+        marginHorizontal: 4, // Reduce margin
+        borderWidth: 2,
+        borderColor: 'transparent', // Default transparent border
     },
     selectedDateBubble: {
-        // No specific border, color change handles selection
+        backgroundColor: '#FFD700', // Yellow for selected
+        borderColor: '#FFF', // White border for selected
+        transform: [{ scale: 1.1 }], // Slightly bigger for emphasis
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 3 },
+        shadowOpacity: 0.3,
+        shadowRadius: 5,
+        elevation: 7,
+    },
+    unselectedDateBubble: {
+        backgroundColor: 'rgba(255, 255, 255, 0.3)', // Semi-transparent white for unselected
+        borderColor: 'rgba(255, 255, 255, 0.2)', // Subtler border for unselected
     },
     dateNumber: {
         fontSize: 18,
         fontWeight: 'bold',
+        fontFamily: 'Fredoka',
     },
     dateDay: {
-        fontSize: 14,
+        fontSize: 12,
+        fontFamily: 'Fredoka',
     },
-    mainContent: {
-        flex: 1,
-        backgroundColor: '#FF69B4',
+    selectedDateText: {
+        color: '#333', // Dark text for selected bubble
+    },
+    unselectedDateText: {
+        color: '#FFF', // White text for unselected bubbles
+    },
+    mainContentScroll: {
+        flexGrow: 1, // Allows ScrollView to take full height
+        justifyContent: 'center', // Center content vertically when few challenges
         alignItems: 'center',
-        justifyContent: 'center',
-        paddingHorizontal: 30,
+        paddingVertical: 30, // Padding top/bottom for ScrollView content
+        paddingHorizontal: 20,
+        backgroundColor: '#FCE4EC', // Match container background
+    },
+    noChallengesContainer: {
+        alignItems: 'center',
+        padding: 20,
+        backgroundColor: '#FFF', // White background for the empty state card
+        borderRadius: 20,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.1,
+        shadowRadius: 8,
+        elevation: 8,
+        marginHorizontal: 20,
+    },
+    noChallengesImage: {
+        width: 220,
+        height: 220,
+        marginBottom: 20,
+        resizeMode: 'contain', // Ensure image scales correctly
     },
     challengeText: {
-        fontSize: 22,
-        color: '#FFF',
+        fontSize: 20,
+        color: '#333', // Darker text for readability
         textAlign: 'center',
-        marginBottom: 40,
-        lineHeight: 30,
+        marginBottom: 10,
+        lineHeight: 28,
+        fontFamily: 'Fredoka',
+    },
+    challengeTextSmall: {
+        fontSize: 16,
+        color: '#666',
+        textAlign: 'center',
+        marginBottom: 30,
+        lineHeight: 24,
+        fontFamily: 'Fredoka',
     },
     highlightText: {
         fontWeight: 'bold',
-        color: '#FFD700', // Yellow for "your goals!"
+        color: '#FF69B4', // Hot pink for highlights
+    },
+    browseChallengesButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#FF2B8D', // Deep pink for the button
+        borderRadius: 30,
+        paddingVertical: 15,
+        paddingHorizontal: 30,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.2,
+        shadowRadius: 5,
+        elevation: 7,
+    },
+    browseChallengesButtonText: {
+        color: '#FFF',
+        fontSize: 18,
+        fontWeight: 'bold',
+        fontFamily: 'Fredoka',
+        marginRight: 10,
+    },
+    browseChallengesIcon: {
+        width: 24,
+        height: 24,
+        tintColor: '#FFF', // Make the arrow icon white
     },
     challengesList: {
-        paddingHorizontal: 10,
-        paddingBottom: 20, // Add some padding at the bottom
+        paddingTop: 10, // Small padding at top of list
+        width: width * 0.9, // Adjust list width to give some side margin
+        alignSelf: 'center', // Center the list
     },
     challengeItem: {
-        flexDirection: 'column',
-        backgroundColor: '#E02B82',
-        borderRadius: 15,
+        flexDirection: 'row', // Horizontal layout for challenge item
+        backgroundColor: '#FFF', // White background for challenge cards
+        borderRadius: 20, // More rounded corners
         padding: 15,
         marginBottom: 15,
         alignItems: 'center',
-        width: width * 0.75, // Adjust width to fit screen better
+        justifyContent: 'space-between', // Space out content
         shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
+        shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.1,
-        shadowRadius: 4,
-        elevation: 3,
+        shadowRadius: 8,
+        elevation: 8,
+        borderWidth: 1,
+        borderColor: '#FFC0CB', // Light pink border
     },
     challengeImage: {
-        width: 60,
-        height: 60,
-        borderRadius: 10,
+        width: 70, // Slightly larger image
+        height: 70,
+        borderRadius: 15, // Match card radius
         marginRight: 15,
+        borderWidth: 2,
+        borderColor: '#FFB6C1', // Soft pink border around image
     },
     challengeInfo: {
-        flex: 1,
+        flex: 1, // Take up available space
+        marginRight: 10, // Space before buttons
     },
     challengeTitle: {
-        fontSize: 18,
+        fontSize: 19,
         fontFamily: 'Fredoka',
         fontWeight: 'bold',
-        color: '#f8a3cc', // Pink title
+        color: '#FF2B8D', // Deep pink for title
         marginBottom: 5,
     },
     challengeGoal: {
         fontFamily: 'Fredoka',
-        fontSize: 14,
-        color: '#fff',
+        fontSize: 15,
+        color: '#555', // Darker gray for goal text
+    },
+    challengeActions: {
+        flexDirection: 'column', // Stack buttons vertically
+        alignItems: 'flex-end', // Align buttons to the right
+    },
+    actionButton: {
+        paddingVertical: 8, // Smaller vertical padding
+        paddingHorizontal: 12, // Smaller horizontal padding
+        borderRadius: 20, // Pill-shaped buttons
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginTop: 5, // Space between buttons
+        minWidth: 70, // Ensure consistent width
+    },
+    failedButton: {
+        backgroundColor: '#FF4500', // Orange-red for failed
+    },
+    doneButton: {
+        backgroundColor: '#28A745', // Standard green for done
+    },
+    actionButtonText: {
+        color: '#FFF',
+        fontWeight: 'bold',
+        fontSize: 13, // Slightly smaller text
+        fontFamily: 'Fredoka',
     },
 });
