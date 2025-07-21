@@ -24,11 +24,11 @@ const WelcomeScreen = ({ navigation }) => {
             <View style={styles.content}>
                 {/* App Logo/Branding */}
                 <View style={styles.logoContainer}>
-                    <Image
-                        source={require('../assets/img/061e0b519eb28e5afc84c278c14d3c2dd5698e59.png')} // Your app's main logo
-                        style={styles.logo}
-                        resizeMode="contain"
-                    />
+                    {/*<Image*/}
+                    {/*    source={require('../assets/img/061e0b519eb28e5afc84c278c14d3c2dd5698e59.png')} // Your app's main logo*/}
+                    {/*    style={styles.logo}*/}
+                    {/*    resizeMode="contain"*/}
+                    {/*/>*/}
                     <Text style={styles.appNameText}>Smart Habits</Text> {/* Added app name */}
                 </View>
 
