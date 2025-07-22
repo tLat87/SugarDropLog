@@ -6,6 +6,7 @@ import {useNavigation} from '@react-navigation/native';
 import ChallengeListScreen from "../screens/ChallengeListScreen";
 import SettingsScreen from "../screens/SettingsScreen";
 import ArticleListScreen from "../screens/ArticleListScreen";
+import CalorieCounterScreen from "../screens/CalorieCounterScreen";
 
 const Tab = createBottomTabNavigator();
 
@@ -13,7 +14,7 @@ const getTabIcon = (routeName) => {
     switch (routeName) {
         case 'MainScreen':
             return require('../assets/img/Frame2.png');
-        case 'ChallengeListScreen':
+        case 'CalorieCounterScreen':
             return require('../assets/img/Frame3.png');
         case 'SettingsScreen':
             return require('../assets/img/Frame4.png');
@@ -55,15 +56,15 @@ const MainTabNavigator = () => {
             />
 
 
+
             <Tab.Screen
-                name="ChallengeListScreen"
-                component={ChallengeListScreen}
+                name="CalorieCounterScreen"
+                component={CalorieCounterScreen}
                 options={{
                     tabBarLabel: '',
                     headerTitle: 'Home',
                 }}
             />
-
 
 
             <Tab.Screen

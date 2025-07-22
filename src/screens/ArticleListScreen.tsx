@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
     View,
     Text,
@@ -7,14 +7,41 @@ import {
     StyleSheet,
     ScrollView,
     Image,
-    SafeAreaView, // Added SafeAreaView for better layout
+    SafeAreaView,
+    Alert,
 } from 'react-native';
+import { StackScreenProps } from '@react-navigation/stack';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useFocusEffect } from '@react-navigation/native';
+import Icon from 'react-native-vector-icons/FontAwesome'; // Import for star icons
 
-// Data for articles
-const articles = [
+// Make sure you have react-native-vector-icons installed:
+// npm install react-native-vector-icons
+// npx react-native link react-native-vector-icons (for older RN versions)
+// Don't forget to follow the post-installation steps for iOS/Android if using bare workflow.
+
+// Define the type for an individual article
+interface Article {
+    id: string;
+    category: string;
+    title: string;
+    summary: string;
+    content: string;
+}
+
+// Define the types for your navigation stack parameters
+type RootStackParamList = {
+    ArticleListScreen: undefined;
+    ArticleDetailScreen: { article: Article };
+};
+
+type ArticleListScreenProps = StackScreenProps<RootStackParamList, 'ArticleListScreen'>;
+
+// Data for articles (kept the same as your original data)
+const articles: Article[] = [
     {
         id: 'a1',
-        category: 'Understanding Habits', // New category
+        category: 'Understanding Habits',
         title: 'Why We Crave Sugar',
         summary:
             'Sugar cravings can feel overwhelming, especially when they hit out of nowhere. But understanding why we crave sugar is the first step toward managing it. Sugar gives our brain a quick hit of dopamine — the feel-good chemical — which is why it feels so satisfying in the moment. Unfortunately, that feeling is short-lived, and often followed by a crash that leaves us even more tired or irritable than before.',
@@ -26,7 +53,7 @@ const articles = [
     },
     {
         id: 'a2',
-        category: 'Building Momentum', // New category
+        category: 'Building Momentum',
         title: 'Small Wins Matter',
         summary:
             'When people start reducing sugar, they often go all in — and that’s great, but not always sustainable. The truth is, small wins build real change. Saying no to dessert once may not feel like a victory, but it is. Every time you make a mindful choice, you\'re rewiring your habits just a little more.',
@@ -38,7 +65,7 @@ const articles = [
     },
     {
         id: 'a3',
-        category: 'Nutrition Insights', // New category
+        category: 'Nutrition Insights',
         title: 'Fruit Is Not the Enemy',
         summary:
             'In a world full of sugar warnings and low-carb trends, fruit sometimes gets lumped in with candy. But fruit isn’t the problem — it\'s part of the solution. Whole fruits like apples, oranges, berries, and bananas contain natural sugars, yes, but they also bring fiber, water, vitamins, and antioxidants your body needs.',
@@ -50,7 +77,7 @@ const articles = [
     },
     {
         id: 'a4',
-        category: 'Overcoming Setbacks', // New category
+        category: 'Overcoming Setbacks',
         title: 'The Power of a Reset Day',
         summary:
             'Sometimes we have a rough day. Maybe you had a slice of cake at work, grabbed a sugary drink at lunch, and then gave in to ice cream at night. It happens. What matters most is what you do next — and that’s where a reset day comes in.',
@@ -64,7 +91,7 @@ const articles = [
     },
     {
         id: 'a5',
-        category: 'Understanding Habits', // New category
+        category: 'Understanding Habits',
         title: 'Sugar and Emotions',
         summary:
             'There’s a reason we call it comfort food. Sugar is tightly connected to how we feel — bored, sad, stressed, even happy. A celebration usually means cake. A breakup often brings ice cream. We don’t just eat sugar for taste. We eat it for emotion.',
@@ -78,31 +105,92 @@ const articles = [
     },
 ];
 
-const ArticleListScreen = ({ navigation }) => {
-    // Group articles by category for better organization
+const ArticleListScreen = ({ navigation }: ArticleListScreenProps) => {
+    // State to store ratings: { [articleId: string]: number }
+    const [articleRatings, setArticleRatings] = useState<Record<string, number>>({});
+
+    // Function to load article ratings from AsyncStorage
+    const loadArticleRatings = useCallback(async () => {
+        try {
+            const storedRatings = await AsyncStorage.getItem('articleRatings');
+            const parsedRatings = storedRatings ? JSON.parse(storedRatings) : {};
+            setArticleRatings(parsedRatings);
+        } catch (error) {
+            console.error('Failed to load article ratings:', error);
+        }
+    }, []);
+
+    // Load ratings on initial mount and when the screen is focused again
+    useEffect(() => {
+        loadArticleRatings();
+    }, [loadArticleRatings]);
+
+    useFocusEffect(
+        useCallback(() => {
+            loadArticleRatings(); // Reload ratings when screen is focused
+        }, [loadArticleRatings])
+    );
+
+    // Function to save a new rating for an article
+    const handleSetRating = async (articleId: string, rating: number) => {
+        try {
+            const newRatings = { ...articleRatings, [articleId]: rating };
+            setArticleRatings(newRatings);
+            await AsyncStorage.setItem('articleRatings', JSON.stringify(newRatings));
+            Alert.alert('Rating Saved! ⭐', `You rated this article ${rating} stars.`, [{ text: 'OK' }]);
+        } catch (error) {
+            console.error('Failed to save rating:', error);
+            Alert.alert('Error', 'Could not save rating. Please try again.', [{ text: 'OK' }]);
+        }
+    };
+
+    // Group articles by category
     const groupedArticles = articles.reduce((acc, article) => {
         (acc[article.category] = acc[article.category] || []).push(article);
         return acc;
-    }, {});
+    }, {} as Record<string, Article[]>);
 
-    const renderArticleCard = ({ item }) => (
-        <TouchableOpacity
-            style={styles.card}
-            onPress={() => navigation.navigate('ArticleDetailScreen', { article: item })}
-        >
-            <View style={styles.cardContent}>
-                <Text style={styles.cardTitle}>{item.title}</Text>
-                <Text style={styles.cardSummary}>{item.summary.substring(0, 150)}...</Text> {/* Longer summary preview */}
-            </View>
+    const renderArticleCard = ({ item }: { item: Article }) => {
+        const currentRating = articleRatings[item.id] || 0; // Get current rating, default to 0
+
+        return (
             <TouchableOpacity
-                style={styles.readButton}
+                style={styles.card}
                 onPress={() => navigation.navigate('ArticleDetailScreen', { article: item })}
             >
-                <Text style={styles.readButtonText}>Read Article</Text>
-                <Text style={styles.readButtonArrow}>→</Text> {/* Added an arrow for visual cue */}
+                <View style={styles.cardContent}>
+                    <Text style={styles.cardTitle}>{item.title}</Text>
+                    <Text style={styles.cardSummary}>{item.summary.substring(0, 150)}...</Text>
+                </View>
+
+                {/* Rating Section */}
+                <View style={styles.ratingContainer}>
+                    {[1, 2, 3, 4, 5].map((star) => (
+                        <TouchableOpacity
+                            key={star}
+                            onPress={() => handleSetRating(item.id, star)}
+                            style={styles.starButton}
+                        >
+                            <Icon
+                                name={star <= currentRating ? 'star' : 'star-o'} // 'star' for filled, 'star-o' for outline
+                                size={22}
+                                color={star <= currentRating ? '#FFD700' : '#C5A0D6'} // Gold for filled, light violet for outline
+                            />
+                        </TouchableOpacity>
+                    ))}
+                    {currentRating > 0 && <Text style={styles.currentRatingText}>{currentRating}/5</Text>}
+                </View>
+
+                <TouchableOpacity
+                    style={styles.readButton}
+                    onPress={() => navigation.navigate('ArticleDetailScreen', { article: item })}
+                >
+                    <Text style={styles.readButtonText}>Read Article</Text>
+                    <Text style={styles.readButtonArrow}>→</Text>
+                </TouchableOpacity>
             </TouchableOpacity>
-        </TouchableOpacity>
-    );
+        );
+    };
 
     return (
         <SafeAreaView style={styles.safeArea}>
@@ -119,7 +207,7 @@ const ArticleListScreen = ({ navigation }) => {
                             data={groupedArticles[category]}
                             renderItem={renderArticleCard}
                             keyExtractor={(item) => item.id}
-                            scrollEnabled={false} // Disable inner scroll for FlatList
+                            scrollEnabled={false}
                             contentContainerStyle={styles.listContent}
                         />
                     </View>
@@ -132,22 +220,22 @@ const ArticleListScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
     safeArea: {
         flex: 1,
-        backgroundColor: '#FCE4EC', // Very light pink/blush background for overall app
+        backgroundColor: '#F0E6FA', // Very light lavender/purple background
     },
     header: {
-        backgroundColor: '#FF69B4', // Hot Pink for the header background
+        backgroundColor: '#8A2BE2', // BlueViolet for header
         paddingTop: 20,
         paddingBottom: 20,
         alignItems: 'center',
         justifyContent: 'center',
-        borderBottomLeftRadius: 30, // Rounded bottom corners
+        borderBottomLeftRadius: 30,
         borderBottomRightRadius: 30,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 5 },
         shadowOpacity: 0.2,
         shadowRadius: 8,
         elevation: 10,
-        marginBottom: 20, // Space below header
+        marginBottom: 20,
     },
     headerImage: {
         width: 60,
@@ -169,25 +257,24 @@ const styles = StyleSheet.create({
     },
     categorySection: {
         marginBottom: 25,
-        paddingHorizontal: 20, // Consistent horizontal padding
+        paddingHorizontal: 20,
     },
     categoryTitle: {
         fontFamily: 'Fredoka',
-        fontSize: 22, // Slightly smaller for better hierarchy
+        fontSize: 22,
         fontWeight: 'bold',
-        color: '#FF2B8D', // Deep pink for category titles
+        color: '#8A2BE2', // BlueViolet for category titles
         marginBottom: 15,
         textAlign: 'center',
-        backgroundColor: '#FFD700', // Yellow background for category title
+        backgroundColor: '#DDA0DD', // Plum/light purple background for category title
         paddingVertical: 8,
         borderRadius: 10,
-        overflow: 'hidden', // Ensures text doesn't overflow rounded corners
+        overflow: 'hidden',
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.1,
         shadowRadius: 3,
         elevation: 3,
-        // Optional: Adding a small subtle border
         borderWidth: 1,
         borderColor: 'rgba(255, 255, 255, 0.5)',
     },
@@ -196,55 +283,71 @@ const styles = StyleSheet.create({
     },
     card: {
         backgroundColor: '#FFFFFF', // White background for cards
-        borderRadius: 20, // More rounded corners
+        borderRadius: 20,
         padding: 20,
-        marginBottom: 20, // More space between cards
+        marginBottom: 20,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 5 },
-        shadowOpacity: 0.15, // Stronger shadow for depth
+        shadowOpacity: 0.15,
         shadowRadius: 8,
         elevation: 8,
         borderWidth: 1,
-        borderColor: '#FFC0CB', // Light pink border
+        borderColor: '#DDA0DD', // Plum/light purple border
     },
     cardContent: {
-        marginBottom: 15, // Space between content and button
+        marginBottom: 10, // Space between content and rating
     },
     cardTitle: {
         fontSize: 22,
         fontWeight: 'bold',
-        color: '#FF2B8D', // Deep pink for title
+        color: '#8A2BE2', // BlueViolet for title
         fontFamily: 'Fredoka',
         marginBottom: 8,
-        lineHeight: 28, // Better readability for multi-line titles
+        lineHeight: 28,
     },
     cardSummary: {
         fontSize: 16,
-        color: '#555', // Darker gray for summary text
+        color: '#555',
         fontFamily: 'Fredoka',
-        lineHeight: 24, // Better readability
+        lineHeight: 24,
+    },
+    ratingContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 15, // Space between rating and read button
+        marginTop: 10, // Space between summary and rating
+    },
+    starButton: {
+        paddingHorizontal: 4, // Adjust spacing between stars
+    },
+    currentRatingText: {
+        marginLeft: 10,
+        fontSize: 16,
+        fontWeight: 'bold',
+        color: '#9370DB', // MediumPurple for the rating text
+        fontFamily: 'Fredoka',
     },
     readButton: {
-        flexDirection: 'row', // Align text and arrow horizontally
+        flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: '#FF69B4', // Vibrant pink button
+        backgroundColor: '#9370DB', // MediumPurple button
         paddingVertical: 14,
-        borderRadius: 15, // Rounded button
-        alignSelf: 'stretch', // Make button full width
+        borderRadius: 15,
+        alignSelf: 'stretch',
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.2,
         shadowRadius: 4,
         elevation: 5,
-        marginTop: 10, // Space from summary if needed
+        marginTop: 10,
     },
     readButtonText: {
         color: '#FFF',
         fontWeight: 'bold',
         fontSize: 18,
         fontFamily: 'Fredoka',
-        marginRight: 8, // Space between text and arrow
+        marginRight: 8,
     },
     readButtonArrow: {
         color: '#FFF',

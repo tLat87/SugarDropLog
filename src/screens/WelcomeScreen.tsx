@@ -44,13 +44,12 @@ const WelcomeScreen = ({ navigation }) => {
                     routines — one day at a time.
                 </Text>
 
-                {/* Call to Action Button */}
                 <TouchableOpacity
                     style={styles.button}
                     onPress={() => navigation.navigate('MainTab')}
                 >
                     <Text style={styles.buttonText}>Get Started!</Text>
-                    <Image source={require('../assets/img/Frame2ygvuhio.png')} style={styles.buttonIcon}/> {/* Arrow icon */}
+                    {/*<Image source={require('../assets/img/Frame2ygvuhio.png')} style={styles.buttonIcon}/> /!* Arrow icon *!/*/}
                 </TouchableOpacity>
             </View>
         </SafeAreaView>
@@ -60,9 +59,10 @@ const WelcomeScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#FCE4EC', // Consistent light pink/blush background
-        justifyContent: 'center', // Center content vertically
-        alignItems: 'center',     // Center content horizontally
+        // Consistent very light lavender/purple background
+        backgroundColor: '#F0E6FA',
+        justifyContent: 'center',
+        alignItems: 'center',
     },
     // Decorative Images
     topLeftDeco: {
@@ -71,7 +71,8 @@ const styles = StyleSheet.create({
         position: 'absolute',
         top: 50,
         left: -50,
-        opacity: 0.6, // Slightly faded to not distract from main content
+        opacity: 0.6,
+        tintColor: '#DDA0DD', // Tint to a light purple for consistency
     },
     middleRightDeco: {
         width: 180,
@@ -80,6 +81,7 @@ const styles = StyleSheet.create({
         top: 150,
         right: -70,
         opacity: 0.6,
+        tintColor: '#C5A0D6', // Tint to a lighter violet
     },
     bottomLeftDeco: {
         width: 170,
@@ -88,11 +90,13 @@ const styles = StyleSheet.create({
         bottom: 50,
         left: -60,
         opacity: 0.6,
+        tintColor: '#A0B0D0', // Tint to a slightly bluish-purple
     },
     content: {
         alignItems: 'center',
         paddingHorizontal: 30,
-        backgroundColor: 'rgba(255, 255, 255, 0.9)', // Semi-transparent white card for main content
+        // Semi-transparent white card for main content
+        backgroundColor: 'rgba(255, 255, 255, 0.9)',
         borderRadius: 25,
         paddingVertical: 40,
         shadowColor: '#000',
@@ -100,50 +104,54 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.2,
         shadowRadius: 15,
         elevation: 15,
-        width: '90%', // Make content card slightly narrower
-        maxWidth: 400, // Max width for larger screens
+        width: '90%',
+        maxWidth: 400,
     },
     logoContainer: {
         alignItems: 'center',
         marginBottom: 20,
     },
     logo: {
-        width: 180, // Smaller logo to fit better
+        width: 180,
         height: 90,
         marginBottom: 5,
+        tintColor: '#8A2BE2', // Tint logo to BlueViolet if it's a monochrome image
     },
     appNameText: {
         fontSize: 28,
         fontWeight: 'bold',
         fontFamily: 'Fredoka',
-        color: '#FF69B4', // Hot pink for app name
+        // BlueViolet for app name
+        color: '#8A2BE2',
         textShadowColor: 'rgba(0, 0, 0, 0.1)',
         textShadowOffset: { width: 1, height: 1 },
         textShadowRadius: 2,
     },
     welcomeText: {
-        fontSize: 34, // Slightly smaller for better flow
+        fontSize: 34,
         fontWeight: 'bold',
         fontFamily: 'Fredoka',
-        color: '#FF2B8D', // Deep pink for welcome text
+        // SlateBlue for welcome text
+        color: '#6A5ACD',
         marginBottom: 15,
-        marginTop: 10, // Adjust spacing
+        marginTop: 10,
     },
     description: {
-        fontSize: 18, // Adjusted font size for readability
+        fontSize: 18,
         textAlign: 'center',
-        color: '#555', // Darker gray for description
+        color: '#555', // Keep dark gray for readability
         marginBottom: 30,
         fontFamily: 'Fredoka',
-        lineHeight: 26, // Improved line height
+        lineHeight: 26,
     },
     button: {
-        flexDirection: 'row', // Align text and icon
+        flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: '#FF69B4', // Hot pink button
+        // MediumPurple button
+        backgroundColor: '#9370DB',
         paddingVertical: 15,
         paddingHorizontal: 40,
-        borderRadius: 30, // Pill-shaped button
+        borderRadius: 30,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 5 },
         shadowOpacity: 0.25,
@@ -155,10 +163,10 @@ const styles = StyleSheet.create({
         fontSize: 20,
         fontFamily: 'Fredoka',
         fontWeight: 'bold',
-        marginRight: 10, // Space between text and icon
+        marginRight: 10,
     },
     buttonIcon: {
-        width: 24, // Size for the arrow icon
+        width: 24,
         height: 24,
         resizeMode: 'contain',
         tintColor: '#FFF', // Ensure icon is white

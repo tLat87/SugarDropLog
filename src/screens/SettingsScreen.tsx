@@ -119,12 +119,7 @@ const SettingsScreen = () => {
                     <Text style={styles.developerRoadmapItem}>8. **Platform Specific Code**: `Platform` module, native modules.</Text>
                     <Text style={styles.developerRoadmapItem}>9. **Debugging & Testing**: Reactotron, Jest, React Native Testing Library.</Text>
                     <Text style={styles.developerRoadmapItem}>10. **Deployment**: App Store Connect (iOS), Google Play Console (Android).</Text>
-                    <TouchableOpacity
-                        style={styles.learnMoreButton}
-                        onPress={() => handleOpenLink('https://reactnative.dev/docs/getting-started')}
-                    >
-                        <Text style={styles.learnMoreButtonText}>Learn More about React Native 🚀</Text>
-                    </TouchableOpacity>
+
                 </View>
                 <View style={{marginBottom: 100}}/>
             </ScrollView>
@@ -140,7 +135,8 @@ const styles = StyleSheet.create({
     },
     container: {
         flex: 1,
-        backgroundColor: 'rgba(255, 43, 141, 0.8)',
+        // Changed from pink to a semi-transparent violet/purple
+        backgroundColor: 'rgba(138, 43, 226, 0.8)', // BlueViolet with 80% opacity
         padding: 20,
     },
     header: {
@@ -162,7 +158,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        backgroundColor: '#FFFFFF',
+        backgroundColor: '#FFFFFF', // Keep white for general settings items
         borderRadius: 15,
         paddingVertical: 18,
         paddingHorizontal: 20,
@@ -173,11 +169,13 @@ const styles = StyleSheet.create({
         shadowRadius: 5,
         elevation: 6,
         borderWidth: 1,
-        borderColor: '#FFC0CB',
+        // Light lavender/purple border
+        borderColor: '#DDA0DD', // Plum/light purple
     },
     settingText: {
         fontSize: 20,
-        color: '#FF2B8D',
+        // Changed to a deep violet
+        color: '#8A2BE2', // BlueViolet
         fontWeight: 'bold',
         fontFamily: 'Fredoka',
         flex: 1,
@@ -185,26 +183,30 @@ const styles = StyleSheet.create({
     },
     arrowIcon: {
         fontSize: 24,
-        color: '#FF6EB4',
+        // Changed to a medium purple
+        color: '#9370DB', // MediumPurple
     },
-    // New styles for the Developer Section
+    // Styles for the Developer Section
     developerSection: {
-        backgroundColor: '#FFF0F5', // Lightest pink background for distinction
+        // Lightest lavender/purple background for distinction
+        backgroundColor: '#F8F0FF', // Very light pale purple
         borderRadius: 15,
         padding: 20,
-        marginTop: 20, // Add some space above
+        marginTop: 20,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.15,
         shadowRadius: 5,
         elevation: 5,
         borderWidth: 1,
-        borderColor: '#FFB6C1', // Slightly darker border
+        // Slightly darker purple border
+        borderColor: '#C5A0D6', // Lighter violet
     },
     developerSectionTitle: {
         fontSize: 22,
         fontWeight: 'bold',
-        color: '#C71585', // Darker pink for the title
+        // Darker purple for the title
+        color: '#6A5ACD', // SlateBlue
         marginBottom: 10,
         fontFamily: 'Fredoka',
         textAlign: 'center',
@@ -212,18 +214,21 @@ const styles = StyleSheet.create({
     developerSectionText: {
         fontSize: 16,
         color: '#555',
+        fontFamily: 'Fredoka',
         marginBottom: 10,
         lineHeight: 22,
     },
     developerRoadmapItem: {
         fontSize: 15,
+        fontFamily: 'Fredoka',
         color: '#333',
         marginBottom: 5,
-        marginLeft: 5, // Indent slightly
+        marginLeft: 5,
         lineHeight: 20,
     },
     learnMoreButton: {
-        backgroundColor: '#FF6EB4', // Bright pink button
+        // Medium purple button
+        backgroundColor: '#9370DB', // MediumPurple
         borderRadius: 10,
         paddingVertical: 12,
         paddingHorizontal: 15,
@@ -237,5 +242,4 @@ const styles = StyleSheet.create({
         fontFamily: 'Fredoka',
     },
 });
-
 export default SettingsScreen;

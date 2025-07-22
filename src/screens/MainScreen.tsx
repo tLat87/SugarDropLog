@@ -191,7 +191,7 @@ export default function App({ navigation }) {
                             onPress={() => { navigation.navigate('ChallengeListScreen') }}
                         >
                             <Text style={styles.browseChallengesButtonText}>Explore Challenges</Text>
-                            <Image source={require('../assets/img/FrameEx.png')} style={styles.browseChallengesIcon}/>
+                            {/*<Image source={require('../assets/img/FrameEx.png')} style={styles.browseChallengesIcon}/>*/}
                         </TouchableOpacity>
                     </View>
                 )}
@@ -203,13 +203,13 @@ export default function App({ navigation }) {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#FCE4EC', // Very light pink/blush background for overall app
+        backgroundColor: '#F0E6FA', // Very light lavender/purple background
     },
     header: {
-        backgroundColor: '#FF69B4', // Hot Pink for the header background
-        paddingTop: 30, // More padding for SafeAreaView effect
+        backgroundColor: '#8A2BE2', // BlueViolet for header
+        paddingTop: 30,
         paddingBottom: 20,
-        borderBottomLeftRadius: 30, // Rounded bottom corners for the header
+        borderBottomLeftRadius: 30,
         borderBottomRightRadius: 30,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 5 },
@@ -220,7 +220,7 @@ const styles = StyleSheet.create({
     headerTopRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: 'flex-start', // Align to start
+        justifyContent: 'flex-start',
         paddingHorizontal: 20,
         marginBottom: 20,
     },
@@ -228,45 +228,46 @@ const styles = StyleSheet.create({
         width: 35,
         height: 35,
         marginRight: 10,
+        tintColor: '#FFF', // Make logo white for contrast
     },
     todayText: {
         fontSize: 28,
         fontWeight: 'bold',
         color: '#FFF',
-        fontFamily: 'Fredoka', // Assuming Fredoka is loaded
+        fontFamily: 'Fredoka',
         textShadowColor: 'rgba(0, 0, 0, 0.2)',
         textShadowOffset: { width: 1, height: 1 },
         textShadowRadius: 2,
     },
     dateSelector: {
         flexDirection: 'row',
-        justifyContent: 'space-evenly', // Evenly distribute bubbles
+        justifyContent: 'space-evenly',
         alignItems: 'center',
-        paddingHorizontal: 10, // Add padding to the sides
+        paddingHorizontal: 10,
     },
     dateBubble: {
-        width: width / 7, // Smaller bubbles for more compact look
-        height: width / 7,
-        borderRadius: (width / 7) / 2,
+        width: width / 7.5, // Slightly smaller bubbles for more compact look
+        height: width / 7.5,
+        borderRadius: (width / 7.5) / 2,
         justifyContent: 'center',
         alignItems: 'center',
-        marginHorizontal: 4, // Reduce margin
+        marginHorizontal: 3, // Reduced margin
         borderWidth: 2,
-        borderColor: 'transparent', // Default transparent border
+        borderColor: 'transparent',
     },
     selectedDateBubble: {
-        backgroundColor: '#FFD700', // Yellow for selected
-        borderColor: '#FFF', // White border for selected
-        transform: [{ scale: 1.1 }], // Slightly bigger for emphasis
+        backgroundColor: '#DDA0DD', // Plum/light purple for selected
+        borderColor: '#FFF',
+        transform: [{ scale: 1.15 }], // More pronounced scale
         shadowColor: '#000',
-        shadowOffset: { width: 0, height: 3 },
+        shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.3,
-        shadowRadius: 5,
-        elevation: 7,
+        shadowRadius: 6,
+        elevation: 8,
     },
     unselectedDateBubble: {
-        backgroundColor: 'rgba(255, 255, 255, 0.3)', // Semi-transparent white for unselected
-        borderColor: 'rgba(255, 255, 255, 0.2)', // Subtler border for unselected
+        backgroundColor: 'rgba(255, 255, 255, 0.2)', // More transparent white
+        borderColor: 'rgba(255, 255, 255, 0.1)', // Subtler border
     },
     dateNumber: {
         fontSize: 18,
@@ -278,23 +279,23 @@ const styles = StyleSheet.create({
         fontFamily: 'Fredoka',
     },
     selectedDateText: {
-        color: '#333', // Dark text for selected bubble
+        color: '#FFF', // White text for selected bubble
     },
     unselectedDateText: {
-        color: '#FFF', // White text for unselected bubbles
+        color: '#F0E6FA', // Very light lavender text for unselected bubbles
     },
     mainContentScroll: {
-        flexGrow: 1, // Allows ScrollView to take full height
-        justifyContent: 'center', // Center content vertically when few challenges
+        flexGrow: 1,
+        justifyContent: 'center',
         alignItems: 'center',
-        paddingVertical: 30, // Padding top/bottom for ScrollView content
+        paddingVertical: 30,
         paddingHorizontal: 20,
-        backgroundColor: '#FCE4EC', // Match container background
+        backgroundColor: '#F0E6FA', // Match container background
     },
     noChallengesContainer: {
         alignItems: 'center',
         padding: 20,
-        backgroundColor: '#FFF', // White background for the empty state card
+        backgroundColor: '#FFFFFF', // White background for the empty state card
         borderRadius: 20,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 4 },
@@ -307,11 +308,11 @@ const styles = StyleSheet.create({
         width: 220,
         height: 220,
         marginBottom: 20,
-        resizeMode: 'contain', // Ensure image scales correctly
+        resizeMode: 'contain',
     },
     challengeText: {
         fontSize: 20,
-        color: '#333', // Darker text for readability
+        color: '#6A5ACD', // SlateBlue for main text
         textAlign: 'center',
         marginBottom: 10,
         lineHeight: 28,
@@ -319,7 +320,7 @@ const styles = StyleSheet.create({
     },
     challengeTextSmall: {
         fontSize: 16,
-        color: '#666',
+        color: '#8A2BE2', // BlueViolet for smaller text
         textAlign: 'center',
         marginBottom: 30,
         lineHeight: 24,
@@ -327,12 +328,12 @@ const styles = StyleSheet.create({
     },
     highlightText: {
         fontWeight: 'bold',
-        color: '#FF69B4', // Hot pink for highlights
+        color: '#9370DB', // MediumPurple for highlights
     },
     browseChallengesButton: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: '#FF2B8D', // Deep pink for the button
+        backgroundColor: '#9370DB', // MediumPurple for the button
         borderRadius: 30,
         paddingVertical: 15,
         paddingHorizontal: 30,
@@ -347,81 +348,81 @@ const styles = StyleSheet.create({
         fontSize: 18,
         fontWeight: 'bold',
         fontFamily: 'Fredoka',
-        marginRight: 10,
+        // marginRight: 10, // Removed as there's no icon now
     },
     browseChallengesIcon: {
         width: 24,
         height: 24,
-        tintColor: '#FFF', // Make the arrow icon white
+        tintColor: '#FFF',
     },
     challengesList: {
-        paddingTop: 10, // Small padding at top of list
-        width: width * 0.9, // Adjust list width to give some side margin
-        alignSelf: 'center', // Center the list
+        paddingTop: 10,
+        width: width * 0.9,
+        alignSelf: 'center',
     },
     challengeItem: {
-        flexDirection: 'row', // Horizontal layout for challenge item
-        backgroundColor: '#FFF', // White background for challenge cards
-        borderRadius: 20, // More rounded corners
+        flexDirection: 'row',
+        backgroundColor: '#FFFFFF', // White background for challenge cards
+        borderRadius: 20,
         padding: 15,
         marginBottom: 15,
         alignItems: 'center',
-        justifyContent: 'space-between', // Space out content
+        justifyContent: 'space-between',
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.1,
         shadowRadius: 8,
         elevation: 8,
         borderWidth: 1,
-        borderColor: '#FFC0CB', // Light pink border
+        borderColor: '#DDA0DD', // Plum/light purple border
     },
     challengeImage: {
-        width: 70, // Slightly larger image
+        width: 70,
         height: 70,
-        borderRadius: 15, // Match card radius
+        borderRadius: 15,
         marginRight: 15,
         borderWidth: 2,
-        borderColor: '#FFB6C1', // Soft pink border around image
+        borderColor: '#C5A0D6', // Lighter violet border around image
     },
     challengeInfo: {
-        flex: 1, // Take up available space
-        marginRight: 10, // Space before buttons
+        flex: 1,
+        marginRight: 10,
     },
     challengeTitle: {
         fontSize: 19,
         fontFamily: 'Fredoka',
         fontWeight: 'bold',
-        color: '#FF2B8D', // Deep pink for title
+        color: '#8A2BE2', // BlueViolet for title
         marginBottom: 5,
     },
     challengeGoal: {
         fontFamily: 'Fredoka',
         fontSize: 15,
-        color: '#555', // Darker gray for goal text
+        color: '#555',
     },
     challengeActions: {
-        flexDirection: 'column', // Stack buttons vertically
-        alignItems: 'flex-end', // Align buttons to the right
+        flexDirection: 'column',
+        alignItems: 'flex-end',
     },
     actionButton: {
-        paddingVertical: 8, // Smaller vertical padding
-        paddingHorizontal: 12, // Smaller horizontal padding
-        borderRadius: 20, // Pill-shaped buttons
+        paddingVertical: 8,
+        paddingHorizontal: 12,
+        borderRadius: 20,
         justifyContent: 'center',
         alignItems: 'center',
-        marginTop: 5, // Space between buttons
-        minWidth: 70, // Ensure consistent width
+        marginTop: 5,
+        minWidth: 70,
     },
     failedButton: {
-        backgroundColor: '#FF4500', // Orange-red for failed
+        backgroundColor: '#DDA0DD', // Plum/light purple for 'Failed'
     },
     doneButton: {
-        backgroundColor: '#28A745', // Standard green for done
+        backgroundColor: '#9370DB', // MediumPurple for 'Done'
     },
     actionButtonText: {
         color: '#FFF',
         fontWeight: 'bold',
-        fontSize: 13, // Slightly smaller text
+        fontSize: 13,
         fontFamily: 'Fredoka',
     },
 });
